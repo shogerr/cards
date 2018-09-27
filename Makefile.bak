@@ -1,0 +1,49 @@
+CC=g++
+CXXFLAGS=-g -std=c++14 -Wall -pedantic
+
+ODIR=obj
+
+SRC=$(wildcard src/*.cpp)
+OBJ=$(SRC:%.cpp=%.o)
+
+MKDIR_P=mkdir -p
+
+all: directories test_card test_deck test_renderer
+
+directories:
+	$(MKDIR_P) $(ODIR)
+
+test_deck: $(ODIR)/deck.o $(ODIR)/card.o $(ODIR)/test_deck.o
+	$(CC) -o $@ $^ $(CXXFLAGS)
+
+test_card: $(ODIR)/card.o $(ODIR)/test_card.o 
+	$(CC)  -o $@ $^ $(CXXFLAGS)
+
+test_renderer: $(ODIR)/renderer.o $(ODIR)/test_renderer.o
+	$(CC)  -o $@ $^ $(CXXFLAGS) $(shell sdl2-config --libs) -lGL
+
+$(ODIR)/test_deck.o: src/test_deck.cpp
+	$(CC) -c -o $@ $< $(CXXFLAGS) 
+
+$(ODIR)/test_card.o: src/test_card.cpp
+	$(CC) -c -o $@ $< $(CXXFLAGS)
+
+$(ODIR)/test_renderer.o: src/test_renderer.cpp
+	$(CC) -c -o $@ $< $(CXXFLAGS) $(shell sdl2-config --cflags)
+
+$(ODIR)/deck.o: src/deck.cpp src/deck.hpp
+	$(CC) -c -o $@ $< $(CXXFLAGS)
+
+$(ODIR)/card.o: src/card.cpp src/card.hpp
+	$(CC) -c -o $@ $< $(CXXFLAGS)
+
+$(ODIR)/renderer.o: src/renderer.cpp src/renderer.hpp
+	$(CC) -c -o $@ $< $(CXXFLAGS) $(shell sdl2-config --cflags)
+
+clean:
+	rm -rf ./obj/
+	rm -f test_deck
+	rm -f test_card
+	rm -f test_renderer
+	
+
